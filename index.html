@@ -3,92 +3,167 @@
 <title>Two Ways to Be Wrong</title>
 <meta name="description" content="How CNNs and Vision Transformers fail differently. A Brain Code Camp 2026 research feature by Jirakitt Chojaimeesuk.">
 <meta property="og:title" content="Two Ways to Be Wrong: How CNNs and Vision Transformers Fail Differently">
+<meta property="og:description" content="Two families of AI vision models can be equally accurate and still get things wrong in completely different ways.">
 <meta property="og:image" content="images/banner.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Inter:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,300;1,9..144,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#fbfaf6;--ink:#1f2228;--muted:#6b6a65;--rule:#dcd8cd;--accent:#2a78d6;--warm:#eb6834;--card:#ffffff}
-@media (prefers-color-scheme:dark){:root{--bg:#16181d;--ink:#ece9e2;--muted:#a3a097;--rule:#34363d;--accent:#6aa8f0;--warm:#f59b72;--card:#f4f2ec}}
+:root{--bg:#fbfaf6;--ink:#1f2228;--muted:#6b6a65;--rule:#dcd8cd;--accent:#2a78d6;--warm:#eb6834;--card:#fff;--soft:#f2efe7}
+@media (prefers-color-scheme:dark){:root{--bg:#15171c;--ink:#ece9e2;--muted:#a3a097;--rule:#33353c;--accent:#6aa8f0;--warm:#f59b72;--card:#f4f2ec;--soft:#1e2027}}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"Source Serif 4",Georgia,serif;font-size:20px;line-height:1.7;-webkit-font-smoothing:antialiased}
-#progress{position:fixed;top:0;left:0;height:4px;background:var(--accent);width:0;z-index:10}
-.top{border-top:8px solid var(--accent)}
-.masthead{max-width:1100px;margin:0 auto;padding:22px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule);font-family:Inter,sans-serif;font-size:13px;letter-spacing:.18em;font-weight:700;text-transform:uppercase}
-.masthead .k{color:var(--accent)} .masthead .d{color:var(--muted)}
-.masthead img{height:46px;background:#fff;border-radius:8px;padding:3px 6px}
-header.hero{max-width:900px;margin:0 auto;padding:72px 24px 36px;text-align:center}
-.kicker{font-family:Inter,sans-serif;font-size:14px;letter-spacing:.24em;font-weight:700;color:var(--warm);text-transform:uppercase}
-h1{font-family:Fraunces,Georgia,serif;font-weight:900;font-size:clamp(40px,7vw,82px);line-height:1.02;letter-spacing:-.02em;margin:18px 0 22px}
-h1 em{font-weight:400;color:var(--accent)}
-.dek{font-style:italic;font-size:clamp(20px,2.4vw,25px);line-height:1.5;color:var(--muted);max-width:720px;margin:0 auto}
-.byline{margin-top:30px;font-family:Inter,sans-serif;font-size:14px;letter-spacing:.06em;color:var(--muted)} .byline b{color:var(--ink)}
-.herofig{max-width:1100px;margin:20px auto 0;padding:0 24px} .herofig img{width:100%;display:block;border-radius:4px}
-article{max-width:700px;margin:0 auto;padding:40px 24px 80px}
-article h2{font-family:Fraunces,Georgia,serif;font-weight:700;font-size:38px;line-height:1.15;margin:80px 0 18px;letter-spacing:-.01em}
-article h2::before{content:"";display:block;width:56px;height:4px;background:var(--warm);margin-bottom:22px}
-article h3{font-family:Inter,sans-serif;font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:48px 0 6px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Source Serif 4",Georgia,serif;font-size:20px;line-height:1.72;-webkit-font-smoothing:antialiased}
+::selection{background:var(--warm);color:#fff}
+#progress{position:fixed;top:0;left:0;height:4px;background:linear-gradient(90deg,var(--accent),var(--warm));width:0;z-index:50}
+
+/* ---------- cover */
+.cover{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;color:#f6f3ec;overflow:hidden;background:#111}
+.cover .bgimg{position:absolute;inset:-20px;background:url(images/hyena.jpg) center 35%/cover;filter:blur(3px) saturate(.9);transform:scale(1.06);animation:drift 22s ease-in-out infinite alternate}
+@keyframes drift{to{transform:scale(1.14) translate(-1.5%,-1%)}}
+.cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,12,16,.35) 0%,rgba(10,12,16,.2) 35%,rgba(10,12,16,.88) 78%,rgba(10,12,16,.96) 100%)}
+.cover .bar{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;justify-content:space-between;align-items:center;padding:22px 32px;font-family:Inter,sans-serif;font-size:12px;letter-spacing:.24em;font-weight:700;text-transform:uppercase;border-top:6px solid var(--warm)}
+.cover .bar img{height:44px;background:#fff;border-radius:8px;padding:3px 6px}
+.cover .inner{position:relative;z-index:2;text-shadow:0 2px 18px rgba(0,0,0,.55);max-width:1000px;margin:0 auto;padding:0 32px 9vh;width:100%}
+.kicker{font-family:Inter,sans-serif;font-size:13px;letter-spacing:.26em;font-weight:700;color:var(--warm);text-transform:uppercase}
+.cover .kicker{color:#ffb38a}
+.cover h1{font-family:Fraunces,Georgia,serif;font-weight:900;font-size:clamp(48px,9vw,120px);line-height:.95;letter-spacing:-.03em;margin:18px 0 20px}
+.cover h1 em{display:block;font-weight:300;font-style:italic;font-size:.42em;letter-spacing:-.01em;line-height:1.15;margin-top:16px;color:#cfe0f6}
+.cover .dek{font-style:italic;font-size:clamp(19px,2.2vw,24px);line-height:1.5;color:#d9d5cc;max-width:680px;margin:0}
+.cover .byline{margin-top:28px;font-family:Inter,sans-serif;font-size:13px;letter-spacing:.08em;color:#b9b5ab}
+.cover .byline b{color:#fff}
+.scroll{position:absolute;z-index:2;left:50%;bottom:22px;transform:translateX(-50%);font-family:Inter,sans-serif;font-size:11px;letter-spacing:.3em;color:#b9b5ab;text-transform:uppercase;animation:bob 2s ease-in-out infinite}
+@keyframes bob{50%{transform:translate(-50%,6px)}}
+.cover .credit{position:absolute;z-index:2;right:16px;bottom:10px;font-family:Inter,sans-serif;font-size:10px;color:#8a867d}
+
+/* ---------- layout + toc */
+.wrap{position:relative;max-width:1180px;margin:0 auto;padding:0 24px}
+nav.toc{position:fixed;left:max(16px,calc(50% - 600px));top:120px;width:200px;font-family:Inter,sans-serif;font-size:12.5px;line-height:1.4;opacity:0;pointer-events:none;transition:opacity .4s}
+nav.toc.on{opacity:1;pointer-events:auto}
+nav.toc .tk{font-size:11px;letter-spacing:.22em;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:12px}
+nav.toc ol{list-style:none;margin:0;padding:0;border-left:2px solid var(--rule)}
+nav.toc li{margin:0}
+nav.toc a{display:block;padding:6px 0 6px 14px;margin-left:-2px;border-left:2px solid transparent;color:var(--muted);text-decoration:none;transition:color .2s,border-color .2s}
+nav.toc a:hover{color:var(--ink)}
+nav.toc a.active{color:var(--accent);border-left-color:var(--accent);font-weight:600}
+@media (max-width:1220px){nav.toc{display:none}}
+
+article{max-width:690px;margin:0 auto;padding:30px 0 60px}
+section{position:relative;padding-top:20px}
+.num{font-family:Fraunces,Georgia,serif;font-weight:900;font-size:150px;line-height:1;color:transparent;-webkit-text-stroke:1.5px var(--rule);position:absolute;right:-30px;top:6px;z-index:-1;user-select:none}
+.sk{display:block;margin-top:70px;font-family:Inter,sans-serif;font-size:13px;letter-spacing:.24em;font-weight:700;color:var(--warm);text-transform:uppercase}
+article h2{font-family:Fraunces,Georgia,serif;font-weight:700;font-size:clamp(30px,4.2vw,42px);line-height:1.12;margin:70px 0 22px;letter-spacing:-.015em}
+.sk+h2{margin-top:10px}
+article h3{font-family:Inter,sans-serif;font-size:14px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin:52px 0 8px}
 p{margin:0 0 1.15em}
-.dropcap::first-letter{float:left;font-family:Fraunces,Georgia,serif;font-weight:900;font-size:6.2em;line-height:.8;padding:.06em .1em 0 0;color:var(--accent)}
-a{color:var(--accent)} a.cite{text-decoration:none;font-size:.78em;vertical-align:.12em;font-family:Inter,sans-serif;font-weight:700}
-blockquote.pull{margin:56px -60px;padding:28px 0;border-top:3px solid var(--ink);border-bottom:1px solid var(--rule);text-align:center}
-blockquote.pull p{font-family:Fraunces,Georgia,serif;font-style:italic;font-size:clamp(26px,3.4vw,36px);line-height:1.3;margin:0}
-blockquote.pull p::before{content:"\201C";display:block;font-size:2.4em;line-height:.6;color:var(--warm);font-style:normal;margin-bottom:12px}
-.stats{display:flex;gap:28px;justify-content:space-between;align-items:flex-end;margin:36px 0;padding:24px 0;border-top:3px solid var(--ink);border-bottom:1px solid var(--rule);flex-wrap:wrap}
-.stat .n{font-family:Fraunces,Georgia,serif;font-weight:900;font-size:clamp(34px,5vw,50px);line-height:1;color:var(--muted)}
-.stat:nth-child(2) .n,.stats .stat:last-child:nth-child(3) .n{}
-.stats .stat.hl .n{color:var(--accent)}
-.stat .l{font-family:Inter,sans-serif;font-size:13px;letter-spacing:.06em;color:var(--muted);margin-top:8px}
-.stat.arrow .n{color:var(--muted);font-weight:400}
-figure{margin:44px -100px;} figure img{width:100%;display:block;background:var(--card);border-radius:6px;box-shadow:0 10px 40px rgba(0,0,0,.08)}
-figure.small{margin:36px auto;max-width:440px}
-figcaption{font-family:Inter,sans-serif;font-size:14px;line-height:1.55;color:var(--muted);margin:14px 100px 0;border-left:3px solid var(--warm);padding-left:12px}
+.dropcap::first-letter{float:left;font-family:Fraunces,Georgia,serif;font-weight:900;font-size:6.4em;line-height:.8;padding:.06em .1em 0 0;color:var(--accent)}
+.lead{font-variant:small-caps;letter-spacing:.05em;font-weight:600}
+a{color:var(--accent)}
+a.cite{position:relative;display:inline-block;text-decoration:none;font-family:Inter,sans-serif;font-weight:700;font-size:.62em;vertical-align:.55em;line-height:1;padding:2px 5px;margin:0 1px;border-radius:4px;background:var(--soft);color:var(--accent)}
+a.cite:hover{background:var(--accent);color:#fff}
+#tip{position:fixed;z-index:60;max-width:340px;background:var(--ink);color:var(--bg);font-family:Inter,sans-serif;font-size:13px;line-height:1.5;padding:12px 14px;border-radius:8px;box-shadow:0 12px 30px rgba(0,0,0,.25);pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s}
+#tip.on{opacity:1;transform:none}
+
+blockquote.pull{margin:64px -90px;padding:34px 0 30px;border-top:3px solid var(--ink);border-bottom:1px solid var(--rule);text-align:center}
+blockquote.pull p{font-family:Fraunces,Georgia,serif;font-weight:300;font-style:italic;font-size:clamp(26px,3.6vw,40px);line-height:1.25;margin:0}
+blockquote.pull::before{content:"\201C";display:block;font-family:Fraunces,Georgia,serif;font-size:90px;line-height:.5;color:var(--warm);margin-bottom:18px}
+.stats{display:flex;gap:28px;justify-content:space-between;align-items:flex-end;margin:40px 0;padding:26px 0;border-top:3px solid var(--ink);border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.stat .n{font-family:Fraunces,Georgia,serif;font-weight:900;font-size:clamp(36px,5.4vw,56px);line-height:1;color:var(--muted);font-variant-numeric:tabular-nums}
+.stat.hl .n{color:var(--accent)}
+.stat .l{font-family:Inter,sans-serif;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:10px}
+.stat.arrow .n{font-weight:300}
+.glance{margin:60px -40px;padding:30px 40px;background:var(--soft);border-radius:4px;border-top:6px solid var(--accent)}
+.glance .gk{font-family:Inter,sans-serif;font-size:13px;letter-spacing:.24em;font-weight:700;color:var(--accent);text-transform:uppercase;margin-bottom:10px}
+.glance ol{margin:0;padding-left:1.2em;font-size:18px}
+.glance li{margin:.6em 0}
+.orn{text-align:center;color:var(--warm);letter-spacing:.8em;font-size:14px;margin:70px 0 0}
+figure{margin:48px -110px}
+figure img{width:100%;display:block;background:var(--card);border-radius:6px;box-shadow:0 14px 44px rgba(0,0,0,.09);cursor:zoom-in;transition:transform .3s,box-shadow .3s}
+figure img:hover{transform:translateY(-3px);box-shadow:0 22px 54px rgba(0,0,0,.14)}
+figure.small{margin:40px auto;max-width:460px}
+figcaption{font-family:Inter,sans-serif;font-size:14px;line-height:1.55;color:var(--muted);margin:16px 110px 0;border-left:3px solid var(--warm);padding-left:12px}
 figure.small figcaption{margin:12px 0 0}
 figcaption b{color:var(--ink)}
-.tw{overflow-x:auto;margin:32px 0}
+figcaption .hint{display:block;margin-top:4px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.7}
+.tw{overflow-x:auto;margin:36px 0}
 table{width:100%;border-collapse:collapse;font-family:Inter,sans-serif;font-size:15px;border-top:3px solid var(--ink)}
-th{text-align:left;padding:12px 10px;border-bottom:1px solid var(--ink);font-weight:700} td{padding:11px 10px;border-bottom:1px solid var(--rule)}
+th{text-align:left;padding:12px 10px;border-bottom:1px solid var(--ink);font-weight:700;white-space:nowrap}
+td{padding:11px 10px;border-bottom:1px solid var(--rule)}
+tr:hover td{background:var(--soft)}
 td strong{color:var(--warm)}
 ol,ul{padding-left:1.3em} li{margin-bottom:.55em}
-.end{text-align:center;color:var(--warm);font-size:22px;margin:40px 0}
-hr{border:0;border-top:1px solid var(--rule);margin:60px 0}
-.refs ol{font-size:15px;line-height:1.6;font-family:Inter,sans-serif;color:var(--muted)} .refs li:target{background:rgba(42,120,214,.12)}
-footer{border-top:1px solid var(--rule);text-align:center;padding:40px 24px 60px;font-family:Inter,sans-serif;font-size:13px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
-@media (max-width:900px){figure{margin:36px 0} figcaption{margin:12px 0 0} blockquote.pull{margin:44px 0}}
-@media (max-width:600px){body{font-size:18px} .masthead .d{display:none} article h2{font-size:30px} .stats{gap:18px}}
+.end{text-align:center;color:var(--warm);font-size:22px;margin:44px 0}
+.refs{margin-top:90px;padding-top:30px;border-top:3px solid var(--ink)}
+.refs h2{margin-top:0}
+.refs ol{font-size:14.5px;line-height:1.6;font-family:Inter,sans-serif;color:var(--muted)}
+.refs li{scroll-margin-top:90px;padding:4px 6px;border-radius:4px;transition:background .6s}
+.refs li:target{background:rgba(235,104,52,.16)}
+.author{display:flex;gap:22px;align-items:center;margin:70px 0 10px;padding:26px;border:1px solid var(--rule);border-radius:6px}
+.author img{width:110px;flex-shrink:0;background:#fff;border-radius:8px;padding:6px}
+.author .ak{font-family:Inter,sans-serif;font-size:11px;letter-spacing:.22em;font-weight:700;color:var(--warm);text-transform:uppercase}
+.author p{margin:6px 0 0;font-size:16px;line-height:1.55;color:var(--muted)}
+.author b{color:var(--ink);font-size:19px}
+.share{display:flex;gap:10px;justify-content:center;margin:30px 0}
+.share button,.share a{font-family:Inter,sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;padding:10px 16px;border:1.5px solid var(--ink);border-radius:999px;background:none;color:var(--ink);cursor:pointer;text-decoration:none}
+.share button:hover,.share a:hover{background:var(--ink);color:var(--bg)}
+footer{border-top:1px solid var(--rule);text-align:center;padding:40px 24px 60px;font-family:Inter,sans-serif;font-size:12px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+#top{position:fixed;right:22px;bottom:22px;width:46px;height:46px;border-radius:50%;border:none;background:var(--ink);color:var(--bg);font-size:20px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .3s;z-index:40}
+#top.on{opacity:1;pointer-events:auto}
+/* lightbox */
+#lb{position:fixed;inset:0;z-index:70;background:rgba(10,12,16,.92);display:flex;align-items:center;justify-content:center;padding:4vh 4vw;opacity:0;pointer-events:none;transition:opacity .25s;cursor:zoom-out}
+#lb.on{opacity:1;pointer-events:auto}
+#lb img{max-width:100%;max-height:84vh;background:#fff;border-radius:6px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+#lb p{position:absolute;bottom:3vh;left:0;right:0;text-align:center;color:#ccc;font-family:Inter,sans-serif;font-size:14px;padding:0 6vw}
+/* reveal */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .9s ease,transform .9s ease}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.cover .bgimg,.scroll{animation:none}}
+@media (max-width:960px){figure{margin:40px 0}figcaption{margin:12px 0 0}blockquote.pull{margin:50px 0}.glance{margin:50px 0;padding:24px}.num{right:0;font-size:110px}}
+@media (max-width:600px){body{font-size:18px}.cover .bar{padding:16px 18px;font-size:10px}.cover .bar .mid{display:none}.cover .inner{padding:0 18px 12vh}.stats{gap:18px}.author{flex-direction:column;text-align:center}.num{font-size:84px}}
 </style></head>
 <body><div id="progress"></div>
-<div class="top"><div class="masthead"><span class="k">Brain Code Camp 2026</span><span class="d">Research Feature</span><img src="images/logo.png" alt="Brain Code Camp logo"></div></div>
-<header class="hero">
-<div class="kicker">Computer Vision · Model Behaviour</div>
-<h1>Two Ways to Be Wrong<br><em>How CNNs and Vision Transformers Fail Differently</em></h1>
-<p class="dek">Two families of AI vision models can be equally accurate and still get things wrong in completely different ways. A student experiment traces those differences back to how each model is built, and to what it learned to rely on.</p>
-<div class="byline">By <b>Jirakitt Chojaimeesuk</b> · November 2026 · <span id="rt">12</span>-minute read</div>
+
+<header class="cover">
+  <div class="bgimg" role="img" aria-label="A spotted hyena"></div>
+  <div class="bar"><span>Brain Code Camp 2026</span><span class="mid">Research Feature</span><img src="images/logo.png" alt="Brain Code Camp logo"></div>
+  <div class="inner">
+    <div class="kicker">Computer Vision · Model Behaviour</div>
+    <h1>Two Ways to Be&nbsp;Wrong<em>How CNNs and Vision Transformers Fail Differently</em></h1>
+    <p class="dek">Two families of AI vision models can be equally accurate and still get things wrong in completely different ways. A student experiment traces those differences back to how each model is built, and to what it learned to rely on.</p>
+    <div class="byline">By <b>Jirakitt Chojaimeesuk</b> · November 2026 · <span id="rt">12</span>-minute read</div>
+  </div>
+  <div class="scroll">Scroll ↓</div>
+  <div class="credit">Photo: ImageNet sample set</div>
 </header>
-<div class="herofig"><img src="images/banner.png" alt="Brain Code Camp 2026 research feature banner"></div>
+
+<div class="wrap">
+<nav class="toc" aria-label="Contents"><div class="tk">Contents</div><ol><li><a href="#s1">A hyena at the zoo</a></li><li><a href="#s2">Two machines, two ways of seeing</a></li><li><a href="#s3">Setting a fair trap</a></li><li><a href="#s4">Finding 1 · They really are wrong in different ways</a></li><li><a href="#s5">Finding 2 · Same eyes, different interpretation</a></li><li><a href="#s6">Finding 3 · Take away the crutch, and the quirk disappears</a></li><li><a href="#s7">Finding 4 · Architecture matters, but it is not the whole story</a></li><li><a href="#s8">What this study cannot yet say</a></li><li><a href="#s9">Why a model&#x27;s mistakes matter</a></li><li><a href="#references">References</a></li></ol></nav>
 <article>
-<h2>A hyena at the zoo</h2>
-<p class="dropcap">When I was a kid, my brother and I stood in front of a hyena at the zoo and argued about what it was. I said it looked like a dog. He was sure it looked like a cat. It was neither, of course. We had never seen a hyena before, so each of us reached for the closest thing we already knew.</p>
-<figure class="small"><img src="images/hyena.jpg" alt="A spotted hyena"><figcaption>A spotted hyena. To a child who has never seen one, it looks like a dog, or a cat, depending on who you ask. Image: ImageNet sample set.</figcaption></figure>
+<section id="s1"><h2>A hyena at the zoo</h2>
+<p class="dropcap"><span class="lead">When I was a kid,</span> my brother and I stood in front of a hyena at the zoo and argued about what it was. I said it looked like a dog. He was sure it looked like a cat. It was neither, of course. We had never seen a hyena before, so each of us reached for the closest thing we already knew.</p>
+<figure class="small reveal"><img src="images/hyena.jpg" alt="A spotted hyena" class="zoom"><figcaption>A spotted hyena. To a child who has never seen one, it looks like a dog, or a cat, depending on who you ask. Image: ImageNet sample set.</figcaption></figure>
 
 <p>That argument stayed with me, because it hides two questions. Why do we map something new onto something familiar? And why do two people, looking at the same animal, map it onto different things?</p>
 <p>Artificial intelligence has the same problem. An image classifier trained on ten categories has no way to say "I have never seen this before." Show it a hyena and it must answer dog, cat, or one of its other eight labels. It will be wrong. The interesting part is <em>how</em> it is wrong, and whether a different kind of model would be wrong in the same way.</p>
-<h2>Two machines, two ways of seeing</h2>
+</section><aside class="glance reveal"><div class="gk">At a glance</div><ol>
+<li><b>Different families, different mistakes.</b> CNNs agree with each other on wrong answers far more than with ViTs (kappa 0.53–0.59 vs 0.34, p = 0.008).</li>
+<li><b>Same eyes, different judgement.</b> Their inner layers start alike (0.86) and split near the decision (0.38).</li>
+<li><b>Take away the crutch, the quirk vanishes.</b> No colour erases the ViT's quirk; blur erases the CNN's.</li>
+<li><b>Architecture is not everything.</b> Only 9% of images split cleanly by model type; 32% look random.</li></ol></aside><div class="orn" aria-hidden="true">✦ ✦ ✦</div><section id="s2"><h2>Two machines, two ways of seeing</h2>
 <p>I picked two kinds of model that are built very differently, to stand in for my brother and me.</p>
-<p><strong>The convolutional neural network (CNN)</strong> works like a magnifying glass. It scans a small patch of the image, slides along, and builds up the big picture layer by layer from textures, edges and lines. I used ResNet-18 <a class="cite" href="#ref2">[2]</a>, a standard CNN.</p>
-<p><strong>The Vision Transformer (ViT)</strong> works more like a jigsaw puzzle. It cuts the image into 64 small tiles and, from the very first layer, asks how every tile relates to every other tile. It sees the whole scene at once <a class="cite" href="#ref3">[3]</a>.</p>
-<p>Both designs can classify images well. But their insides are different, and a 2020 study by Golan and colleagues on "controversial stimuli" <a class="cite" href="#ref1">[1]</a> gave me a way to look at that difference: compare models not by how often they are right, but by the images they disagree on.</p>
+<p><strong>The convolutional neural network (CNN)</strong> works like a magnifying glass. It scans a small patch of the image, slides along, and builds up the big picture layer by layer from textures, edges and lines. I used ResNet-18 <a class="cite" href="#ref2" data-ref="He, K., Zhang, X., Ren, S., &amp;amp; Sun, J. (2016). Deep residual learning for image recognition. IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 770–778. arXiv:1512.03385">2</a>, a standard CNN.</p>
+<p><strong>The Vision Transformer (ViT)</strong> works more like a jigsaw puzzle. It cuts the image into 64 small tiles and, from the very first layer, asks how every tile relates to every other tile. It sees the whole scene at once <a class="cite" href="#ref3" data-ref="Dosovitskiy, A., Beyer, L., Kolesnikov, A., et al. (2021). An image is worth 16×16 words: Transformers for image recognition at scale. International Conference on Learning Representations (ICLR). arXiv:2010.11929">3</a>.</p>
+<p>Both designs can classify images well. But their insides are different, and a 2020 study by Golan and colleagues on "controversial stimuli" <a class="cite" href="#ref1" data-ref="Golan, T., Raju, P. C., &amp;amp; Kriegeskorte, N. (2020). Controversial stimuli: Pitting neural networks against each other as models of human cognition. Proceedings of the National Academy of Sciences, 117(47), 29330–29337. doi:10.1073/pnas.1912334117 · free full text">1</a> gave me a way to look at that difference: compare models not by how often they are right, but by the images they disagree on.</p>
 <p>That led to my research question. When a CNN and a ViT give different answers to an image they have never seen, is that difference really caused by their architecture? I tested two hypotheses:</p>
 <ol>
 <li>When the models answer differently, the difference comes from their architecture, not from chance or from one model simply being better.</li>
 <li>Even when they give the same answer, what happens inside them is still different.</li>
 </ol>
-<h2>Setting a fair trap</h2>
+</section><div class="orn" aria-hidden="true">✦ ✦ ✦</div><section id="s3"><h2>Setting a fair trap</h2>
 <p>The experiment was designed so that architecture is the only thing that differs between the models. Everything else was held fixed.</p>
-<p><strong>Same lessons.</strong> Every model learned from the same 50,000 images of CIFAR-10 <a class="cite" href="#ref4">[4]</a>, a dataset of ten everyday categories: airplane, car, bird, cat, deer, dog, frog, horse, ship and truck. Each trained for 100 epochs with identical settings (AdamW <a class="cite" href="#ref12">[12]</a>, learning rate 0.001, warmup then cosine decay, the same RandAugment data augmentation <a class="cite" href="#ref13">[13]</a>).</p>
+<p><strong>Same lessons.</strong> Every model learned from the same 50,000 images of CIFAR-10 <a class="cite" href="#ref4" data-ref="Krizhevsky, A. (2009). Learning multiple layers of features from tiny images (Technical report). University of Toronto. CIFAR-10 and CIFAR-100 datasets">4</a>, a dataset of ten everyday categories: airplane, car, bird, cat, deer, dog, frog, horse, ship and truck. Each trained for 100 epochs with identical settings (AdamW <a class="cite" href="#ref12" data-ref="Loshchilov, I., &amp;amp; Hutter, F. (2019). Decoupled weight decay regularization (AdamW). International Conference on Learning Representations (ICLR). arXiv:1711.05101">12</a>, learning rate 0.001, warmup then cosine decay, the same RandAugment data augmentation <a class="cite" href="#ref13" data-ref="Cubuk, E. D., Zoph, B., Shlens, J., &amp;amp; Le, Q. V. (2020). RandAugment: Practical automated data augmentation with a reduced search space. CVPR Workshops, 702–703. arXiv:1909.13719">13</a>).</p>
 <p><strong>Same exam.</strong> Every model was then shown the same 10,000 images from CIFAR-100: wolves, lions, plates and dozens of other things that are not among the ten categories. No answer is correct, so every answer is a mistake. The question is which mistake.</p>
 <p><strong>Similar size.</strong> The three models are close in size, so no one wins by sheer capacity.</p>
-<div class="tw"><table>
+<div class="tw reveal"><table>
 <thead>
 <tr>
 <th></th>
@@ -121,14 +196,14 @@ footer{border-top:1px solid var(--rule);text-align:center;padding:40px 24px 60px
 <p>The hybrid model is a ViT whose first layer is swapped for a convolution. It sits between the two families and helps show which part of the architecture matters.</p>
 <p><strong>Seven runs of each.</strong> Training has randomness in it, set by a number called the seed. Two models of the same type trained with different seeds will not behave identically. So I trained each type seven times. Seeds 0 to 4 were used for the analysis. Seeds 5 and 6 were locked away and only used at the end, to check whether the findings held up on models that had never been looked at.</p>
 <p>Why seeds and not k-fold cross-validation? K-fold measures accuracy by giving each model a different slice of training data. Here the training data is a controlled variable: every model must learn from exactly the same images and be tested on exactly the same images, or their mistakes cannot be compared one to one. Changing only the seed isolates the randomness of training itself.</p>
-<p><strong>Measuring agreement.</strong> To compare two models' mistakes, I used Cohen's kappa <a class="cite" href="#ref5">[5]</a>. It measures how often two models pick the same wrong answer, after removing the agreement you would expect by chance. A kappa of 0 means they agree no more than chance; 1 means they pick the same answer on every image.</p>
-<h2>Finding 1: They really are wrong in different ways</h2>
+<p><strong>Measuring agreement.</strong> To compare two models' mistakes, I used Cohen's kappa <a class="cite" href="#ref5" data-ref="Cohen, J. (1960). A coefficient of agreement for nominal scales. Educational and Psychological Measurement, 20(1), 37–46. doi:10.1177/001316446002000104">5</a>. It measures how often two models pick the same wrong answer, after removing the agreement you would expect by chance. A kappa of 0 means they agree no more than chance; 1 means they pick the same answer on every image.</p>
+</section><div class="orn" aria-hidden="true">✦ ✦ ✦</div><section id="s4"><div class="num" aria-hidden="true">01</div><span class="sk">Finding 1</span><h2>They really are wrong in different ways</h2>
 <p>Models of the same family make the same mistakes. Models of different families do not. Two CNNs agree on their wrong answers with a kappa of 0.53 to 0.59, and two ViTs do the same. But a CNN and a ViT agree with a kappa of only 0.34.</p>
-<div class="stats"><div class="stat"><div class="n">0.53–0.59</div><div class="l">Within a family</div></div><div class="stat"><div class="n">0.34</div><div class="l">Between CNN and ViT</div></div><div class="stat"><div class="n">p = 0.008</div><div class="l">Permutation test</div></div></div>
+<div class="stats reveal"><div class="stat"><div class="n" data-count="0.53–0.59">0.53–0.59</div><div class="l">Within a family</div></div><div class="stat"><div class="n" data-count="0.34">0.34</div><div class="l">Between CNN and ViT</div></div><div class="stat"><div class="n" data-count="p = 0.008">p = 0.008</div><div class="l">Permutation test</div></div></div>
 <p>Think of a multiple-choice exam that nobody can pass. Students from the same class tend to pick the same wrong option, because they were taught the same way. Students from a different class pick a different wrong option.</p>
-<blockquote class="pull"><p>Students from the same class pick the same wrong option. Students from a different class pick a different one.</p></blockquote>
-<p>A gap like this could still be a fluke, so I tested it with a permutation test <a class="cite" href="#ref14">[14]</a>. I shuffled the CNN and ViT labels across all ten models in every possible way, 252 arrangements, and recomputed the gap each time. Only 2 of the 252 arrangements produced a gap as large as the real one, giving p = 0.008. That is the smallest p-value this design can produce.</p>
-<figure><img src="images/fig01_s1_agreement.png" alt="Error agreement between pairs of models" loading="lazy"><figcaption><b>Figure 1.</b> How often two models choose the same wrong answer. Each dot is one pair of models; longer bars mean more shared mistakes. CNN–ViT pairs sit far below same-family pairs.</figcaption></figure>
+<blockquote class="pull reveal"><p>Students from the same class pick the same wrong option. Students from a different class pick a different one.</p></blockquote>
+<p>A gap like this could still be a fluke, so I tested it with a permutation test <a class="cite" href="#ref14" data-ref="Good, P. I. (2005). Permutation, Parametric, and Bootstrap Tests of Hypotheses (3rd ed.). Springer. doi:10.1007/b138696">14</a>. I shuffled the CNN and ViT labels across all ten models in every possible way, 252 arrangements, and recomputed the gap each time. Only 2 of the 252 arrangements produced a gap as large as the real one, giving p = 0.008. That is the smallest p-value this design can produce.</p>
+<figure class="reveal"><img src="images/fig01_s1_agreement.png" alt="Error agreement between pairs of models" loading="lazy" class="zoom"><figcaption><b>Figure 1.</b> How often two models choose the same wrong answer. Each dot is one pair of models; longer bars mean more shared mistakes. CNN–ViT pairs sit far below same-family pairs.<span class="hint">Click to enlarge</span></figcaption></figure>
 <h3>Three objections, checked</h3>
 <p>I expected three objections, and tested each one.</p>
 <ol>
@@ -138,20 +213,20 @@ footer{border-top:1px solid var(--rule);text-align:center;padding:40px 24px 60px
 </ol>
 <h3>The images they fight over</h3>
 <p>I then looked for <em>controversial</em> images: ones where all five CNNs give one answer and all five ViTs unanimously give another. There were 257 of them. Their character is striking. On these images, ViTs most often answer <strong>frog</strong> (59 images), while CNNs most often answer <strong>dog</strong> (51 images).</p>
-<figure><img src="images/fig02_s1_answers.png" alt="Favourite wrong answers on controversial images" loading="lazy"><figcaption><b>Figure 2.</b> On the 257 controversial images, each family has a favourite wrong answer: frog for ViTs, dog for CNNs.</figcaption></figure>
+<figure class="reveal"><img src="images/fig02_s1_answers.png" alt="Favourite wrong answers on controversial images" loading="lazy" class="zoom"><figcaption><b>Figure 2.</b> On the 257 controversial images, each family has a favourite wrong answer: frog for ViTs, dog for CNNs.<span class="hint">Click to enlarge</span></figcaption></figure>
 <p>Because I chose these images using seeds 0 to 4, testing them on the same models would flatter the result. So I showed them to the unseen models from seeds 5 and 6. Those models still split along family lines on 135 of the 257 images. By chance alone, about 38 would.</p>
-<h2>Finding 2: Same eyes, different interpretation</h2>
+</section><div class="orn" aria-hidden="true">✦ ✦ ✦</div><section id="s5"><div class="num" aria-hidden="true">02</div><span class="sk">Finding 2</span><h2>Same eyes, different interpretation</h2>
 <p>CNNs and ViTs see an image in much the same way at first, then part ways as they get closer to a decision. On the images they disagree about, internal similarity falls from 0.86 in the first layer to 0.38 in the last.</p>
-<div class="stats"><div class="stat"><div class="n">0.86</div><div class="l">First layer</div></div><div class="stat arrow"><div class="n">→</div><div class="l"></div></div><div class="stat"><div class="n">0.38</div><div class="l">Last layer</div></div></div>
-<p>To look inside the models, I used linear CKA (centered kernel alignment, from Kornblith and colleagues, 2019 <a class="cite" href="#ref6">[6]</a>). CKA compares the internal representations of two networks layer by layer, on a scale from 0 (nothing in common) to 1 (identical). I ran it on 2,000 images across 25 CNN–ViT pairs, matching each layer to its most similar counterpart in the other model.</p>
+<div class="stats reveal"><div class="stat"><div class="n" data-count="0.86">0.86</div><div class="l">First layer</div></div><div class="stat arrow"><div class="n" data-count="→">→</div><div class="l"></div></div><div class="stat"><div class="n" data-count="0.38">0.38</div><div class="l">Last layer</div></div></div>
+<p>To look inside the models, I used linear CKA (centered kernel alignment, from Kornblith and colleagues, 2019 <a class="cite" href="#ref6" data-ref="Kornblith, S., Norouzi, M., Lee, H., &amp;amp; Hinton, G. (2019). Similarity of neural network representations revisited. International Conference on Machine Learning (ICML), 3519–3529. arXiv:1905.00414">6</a>). CKA compares the internal representations of two networks layer by layer, on a scale from 0 (nothing in common) to 1 (identical). I ran it on 2,000 images across 25 CNN–ViT pairs, matching each layer to its most similar counterpart in the other model.</p>
 <p>The early layers of both models handle colours, edges and simple shapes, and there they look alike. The split happens deep in the network, where those features are turned into a judgement. It is like two people looking at the same photograph: they see the same colours and lines, but conclude it shows two different things.</p>
-<figure><img src="images/fig03_s2_cka_depth.png" alt="CKA similarity by layer depth" loading="lazy"><figcaption><b>Figure 3.</b> Similarity of internal representations from the first layer (left) to the last (right). Dashed lines compare models of the same family. The CNN–ViT line drops sharply near the decision, most of all on images they disagree about.</figcaption></figure>
+<figure class="reveal"><img src="images/fig03_s2_cka_depth.png" alt="CKA similarity by layer depth" loading="lazy" class="zoom"><figcaption><b>Figure 3.</b> Similarity of internal representations from the first layer (left) to the last (right). Dashed lines compare models of the same family. The CNN–ViT line drops sharply near the decision, most of all on images they disagree about.<span class="hint">Click to enlarge</span></figcaption></figure>
 <p>This also supports my second hypothesis. Even when the final answers match, what happens inside the deeper layers is not the same.</p>
 <h3>Where they look</h3>
-<p>A second tool, Integrated Gradients <a class="cite" href="#ref11">[11]</a>, shows which pixels a model relied on for its answer, as a kind of heat map. When they answer wrongly, two models of the same family look at similar parts of the image (similarity 0.61 to 0.64). A CNN and a ViT agree only 0.47. Like two witnesses describing the same scene, they point to different evidence.</p>
-<figure><img src="images/fig04_s2_ig_examples.png" alt="Integrated Gradients heat maps" loading="lazy"><figcaption><b>Figure 4.</b> Where each model looked when it answered wrongly. Bright areas are the pixels that drove the answer.</figcaption></figure>
-<figure><img src="images/fig05_s2_ig_metrics.png" alt="Attribution focus and map similarity" loading="lazy"><figcaption><b>Figure 5.</b> Left: CNNs concentrate on smaller spots. Right: attribution maps agree within a family far more than across families.</figcaption></figure>
-<h2>Finding 3: Take away the crutch, and the quirk disappears</h2>
+<p>A second tool, Integrated Gradients <a class="cite" href="#ref11" data-ref="Sundararajan, M., Taly, A., &amp;amp; Yan, Q. (2017). Axiomatic attribution for deep networks (Integrated Gradients). International Conference on Machine Learning (ICML), 3319–3328. arXiv:1703.01365">11</a>, shows which pixels a model relied on for its answer, as a kind of heat map. When they answer wrongly, two models of the same family look at similar parts of the image (similarity 0.61 to 0.64). A CNN and a ViT agree only 0.47. Like two witnesses describing the same scene, they point to different evidence.</p>
+<figure class="reveal"><img src="images/fig04_s2_ig_examples.png" alt="Integrated Gradients heat maps" loading="lazy" class="zoom"><figcaption><b>Figure 4.</b> Where each model looked when it answered wrongly. Bright areas are the pixels that drove the answer.<span class="hint">Click to enlarge</span></figcaption></figure>
+<figure class="reveal"><img src="images/fig05_s2_ig_metrics.png" alt="Attribution focus and map similarity" loading="lazy" class="zoom"><figcaption><b>Figure 5.</b> Left: CNNs concentrate on smaller spots. Right: attribution maps agree within a family far more than across families.<span class="hint">Click to enlarge</span></figcaption></figure>
+</section><div class="orn" aria-hidden="true">✦ ✦ ✦</div><section id="s6"><div class="num" aria-hidden="true">03</div><span class="sk">Finding 3</span><h2>Take away the crutch, and the quirk disappears</h2>
 <p>CNNs lean on fine detail; ViTs lean on colour and the overall shape. When I removed the thing each model relies on, its family-specific mistakes largely vanished. This is the strongest evidence in the study, because it tests cause rather than correlation.</p>
 <p>The idea is simple: take off one pair of glasses at a time and see who can no longer see. I altered the test images in four ways.</p>
 <ol>
@@ -160,9 +235,9 @@ footer{border-top:1px solid var(--rule);text-align:center;padding:40px 24px 60px
 <li><strong>Blur</strong> does the opposite: it removes fine texture and keeps the overall shape.</li>
 <li><strong>Patch shuffling</strong> cuts the image into an 8×8 grid and scrambles the pieces, destroying global shape while keeping each piece intact.</li>
 </ol>
-<figure><img src="images/fig06_s3_examples.png" alt="Examples of the four image alterations" loading="lazy"><figcaption><b>Figure 6.</b> One test image under each alteration.</figcaption></figure>
+<figure class="reveal"><img src="images/fig06_s3_examples.png" alt="Examples of the four image alterations" loading="lazy" class="zoom"><figcaption><b>Figure 6.</b> One test image under each alteration.<span class="hint">Click to enlarge</span></figcaption></figure>
 <p>For each alteration I measured two things: how accurate each family stayed, and how much of its <strong>model-specific error</strong> survived. Model-specific error is how much more a model's mistakes resemble its own family's than the other family's (within-family kappa minus cross-family kappa). I divided it by the same value on normal images, so 100% means the family's quirk is fully intact and 0% means it is gone. Dividing matters: every model gets worse on altered images, so accuracy alone cannot tell you whether the quirk survived.</p>
-<div class="tw"><table>
+<div class="tw reveal"><table>
 <thead>
 <tr>
 <th>Alteration</th>
@@ -203,15 +278,15 @@ footer{border-top:1px solid var(--rule);text-align:center;padding:40px 24px 60px
 </tr>
 </tbody>
 </table></div>
-<figure><img src="images/fig07_s3_accuracy.png" alt="Accuracy after each alteration" loading="lazy"><figcaption><b>Figure 7.</b> Accuracy after each alteration. Compare the dots row by row: each family breaks under a different change.</figcaption></figure>
-<figure><img src="images/fig08_s3_signature.png" alt="Model-specific error remaining" loading="lazy"><figcaption><b>Figure 8.</b> How much of each family's quirk survives. Removing colour or shape erases the ViT's; blurring erases the CNN's. These two experiments currently use two models per family.</figcaption></figure>
+<figure class="reveal"><img src="images/fig07_s3_accuracy.png" alt="Accuracy after each alteration" loading="lazy" class="zoom"><figcaption><b>Figure 7.</b> Accuracy after each alteration. Compare the dots row by row: each family breaks under a different change.<span class="hint">Click to enlarge</span></figcaption></figure>
+<figure class="reveal"><img src="images/fig08_s3_signature.png" alt="Model-specific error remaining" loading="lazy" class="zoom"><figcaption><b>Figure 8.</b> How much of each family's quirk survives. Removing colour or shape erases the ViT's; blurring erases the CNN's. These two experiments currently use two models per family.<span class="hint">Click to enlarge</span></figcaption></figure>
 <p>The pattern is a clean mirror image. Remove colour or global shape, and the ViT loses its quirk while the CNN barely notices. Blur away the fine detail, and it is the CNN that loses its quirk. Scramble the pieces, and the CNN collapses to 21% accuracy while the ViT holds at 48%. The hybrid model, a ViT with a convolutional first layer, collapses like a CNN (27%), suggesting that the very first layer is part of the story.</p>
 <h3>Solving the frog mystery</h3>
 <p>Remember that ViTs love to answer "frog"? On normal images, ViTs call 15% of the unfamiliar pictures a frog. In grayscale, that drops to 6%, the same as CNNs. On the controversial images, it falls from 16% to 5%.</p>
-<figure><img src="images/fig09_s3_frog.png" alt="Frog answers in colour and grayscale" loading="lazy"><figcaption><b>Figure 9.</b> Share of images answered "frog", in colour (left) and grayscale (right). The steeper the line, the more a model relied on colour.</figcaption></figure>
+<figure class="reveal"><img src="images/fig09_s3_frog.png" alt="Frog answers in colour and grayscale" loading="lazy" class="zoom"><figcaption><b>Figure 9.</b> Share of images answered "frog", in colour (left) and grayscale (right). The steeper the line, the more a model relied on colour.<span class="hint">Click to enlarge</span></figcaption></figure>
 <p>The ViT had learned frogs as <em>a green blob</em>. Take away the green, and it stops seeing frogs everywhere. It is exactly the hyena problem: a model meets something new and reaches for the familiar feature it trusts most.</p>
-<blockquote class="pull"><p>The ViT had learned frogs as a green blob. Take away the green, and it stops seeing frogs everywhere.</p></blockquote>
-<h2>Finding 4: Architecture matters, but it is not the whole story</h2>
+<blockquote class="pull reveal"><p>The ViT had learned frogs as a green blob. Take away the green, and it stops seeing frogs everywhere.</p></blockquote>
+</section><div class="orn" aria-hidden="true">✦ ✦ ✦</div><section id="s7"><div class="num" aria-hidden="true">04</div><span class="sk">Finding 4</span><h2>Architecture matters, but it is not the whole story</h2>
 <p>About 9% of the 10,000 unfamiliar images are mistaken in a way that clearly depends on model type. Another 22% fool every model in the same way, and 32% produce answers that look random.</p>
 <p>I sorted every image by the pattern of its mistakes, like a teacher sorting the questions a whole school got wrong:</p>
 <ul>
@@ -219,10 +294,10 @@ footer{border-top:1px solid var(--rule);text-align:center;padding:40px 24px 60px
 <li><strong>Wrong together (22%).</strong> Every model, CNN or ViT, makes the same mistake. Something in the image itself, or in the training data, points everyone the same way.</li>
 <li><strong>Wrong at random (32%).</strong> Even models of the same type agree less than half the time. Here the random seed decides the answer more than the architecture does.</li>
 </ul>
-<figure><img src="images/fig10_s4_groups.png" alt="All images sorted by error pattern" loading="lazy"><figcaption><b>Figure 10.</b> All 10,000 test images, sorted by the pattern of their mistakes.</figcaption></figure>
+<figure class="reveal"><img src="images/fig10_s4_groups.png" alt="All images sorted by error pattern" loading="lazy" class="zoom"><figcaption><b>Figure 10.</b> All 10,000 test images, sorted by the pattern of their mistakes.<span class="hint">Click to enlarge</span></figcaption></figure>
 <p>The rest fall between these groups. The lesson is humbling: the randomness of training has a large effect, and the sharpest architectural differences live in a minority of images. That is exactly why the controls in Finding 1 mattered.</p>
 <p>To separate whether the "wrong together" images come from the training data or from the images themselves, I am now training a further set of models on the other half of the data.</p>
-<h2>What this study cannot yet say</h2>
+</section><div class="orn" aria-hidden="true">✦ ✦ ✦</div><section id="s8"><h2>What this study cannot yet say</h2>
 <p>The findings are consistent across every check, but the study is small and has clear limits.</p>
 <ol>
 <li><strong>Tiny images.</strong> CIFAR images are only 32×32 pixels. Models may behave differently on full-size photographs.</li>
@@ -233,37 +308,58 @@ footer{border-top:1px solid var(--rule);text-align:center;padding:40px 24px 60px
 <li><strong>Small models, trained from scratch.</strong> The results apply to small models trained for this study and cannot yet be generalised to large pretrained ones.</li>
 </ol>
 <p>Next steps are to rerun stages 2 and 3 with five models per family, finish the second-half-of-data models, and test whether the pattern holds on larger images and pretrained models.</p>
-<h2>Why a model's mistakes matter</h2>
+</section><div class="orn" aria-hidden="true">✦ ✦ ✦</div><section id="s9"><h2>Why a model's mistakes matter</h2>
 <p>A model's mistakes reveal what it relies on more clearly than its successes do. Two models can score the same and still carry very different habits, and those habits only show when they meet something new.</p>
-<p>This study fits a wider picture. Earlier work found that ImageNet-trained CNNs rely heavily on texture <a class="cite" href="#ref8">[8]</a>, that ViTs are more robust to scrambled patches <a class="cite" href="#ref9">[9]</a>, and that the two families build their internal representations differently <a class="cite" href="#ref10">[10]</a>. Measuring <em>which</em> errors models share, rather than how many, has also been proposed as a sharper way to compare models with each other and with people <a class="cite" href="#ref7">[7]</a>.</p>
+<p>This study fits a wider picture. Earlier work found that ImageNet-trained CNNs rely heavily on texture <a class="cite" href="#ref8" data-ref="Geirhos, R., Rubisch, P., Michaelis, C., Bethge, M., Wichmann, F. A., &amp;amp; Brendel, W. (2019). ImageNet-trained CNNs are biased towards texture; increasing shape bias improves accuracy and robustness. International Conference on Learning Representations (ICLR). arXiv:1811.12231">8</a>, that ViTs are more robust to scrambled patches <a class="cite" href="#ref9" data-ref="Naseer, M., Ranasinghe, K., Khan, S., Hayat, M., Khan, F. S., &amp;amp; Yang, M.-H. (2021). Intriguing properties of vision transformers. Advances in Neural Information Processing Systems (NeurIPS), 34. arXiv:2105.10497">9</a>, and that the two families build their internal representations differently <a class="cite" href="#ref10" data-ref="Raghu, M., Unterthiner, T., Kornblith, S., Zhang, C., &amp;amp; Dosovitskiy, A. (2021). Do vision transformers see like convolutional neural networks? Advances in Neural Information Processing Systems (NeurIPS), 34. arXiv:2108.08810">10</a>. Measuring <em>which</em> errors models share, rather than how many, has also been proposed as a sharper way to compare models with each other and with people <a class="cite" href="#ref7" data-ref="Geirhos, R., Meding, K., &amp;amp; Wichmann, F. A. (2020). Beyond accuracy: Quantifying trial-by-trial behaviour of CNNs and humans by measuring error consistency. Advances in Neural Information Processing Systems (NeurIPS), 33. arXiv:2006.16736">7</a>.</p>
 <p>The practical consequences are real. If you combine models into an ensemble, two that fail differently cover each other's blind spots better than two that fail the same way. In safety-critical settings, knowing that a model leans on colour, or on texture, tells you which conditions will catch it out.</p>
 <p>My brother and I were both wrong about the hyena. But we were wrong in different ways, and those differences said something true about how each of us had learned to see. The same turns out to hold for machines.</p>
-<blockquote class="pull"><p>We were wrong in different ways, and those differences said something true about how each of us had learned to see.</p></blockquote>
+<blockquote class="pull reveal"><p>We were wrong in different ways, and those differences said something true about how each of us had learned to see.</p></blockquote>
 <p class="end">■</p>
 
 <hr />
-<h2 id="references">References</h2><div class="refs">
-<ol>
-<li id="ref1">Golan, T., Raju, P. C., &amp; Kriegeskorte, N. (2020). Controversial stimuli: Pitting neural networks against each other as models of human cognition. <em>Proceedings of the National Academy of Sciences</em>, 117(47), 29330–29337. <a href="https://doi.org/10.1073/pnas.1912334117">doi:10.1073/pnas.1912334117</a> · <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7703564">free full text</a></li>
-<li id="ref2">He, K., Zhang, X., Ren, S., &amp; Sun, J. (2016). Deep residual learning for image recognition. <em>IEEE Conference on Computer Vision and Pattern Recognition (CVPR)</em>, 770–778. <a href="https://arxiv.org/abs/1512.03385">arXiv:1512.03385</a></li>
-<li id="ref3">Dosovitskiy, A., Beyer, L., Kolesnikov, A., et al. (2021). An image is worth 16×16 words: Transformers for image recognition at scale. <em>International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/2010.11929">arXiv:2010.11929</a></li>
-<li id="ref4">Krizhevsky, A. (2009). <em>Learning multiple layers of features from tiny images</em> (Technical report). University of Toronto. <a href="https://www.cs.toronto.edu/~kriz/cifar.html">CIFAR-10 and CIFAR-100 datasets</a></li>
-<li id="ref5">Cohen, J. (1960). A coefficient of agreement for nominal scales. <em>Educational and Psychological Measurement</em>, 20(1), 37–46. <a href="https://doi.org/10.1177/001316446002000104">doi:10.1177/001316446002000104</a></li>
-<li id="ref6">Kornblith, S., Norouzi, M., Lee, H., &amp; Hinton, G. (2019). Similarity of neural network representations revisited. <em>International Conference on Machine Learning (ICML)</em>, 3519–3529. <a href="https://arxiv.org/abs/1905.00414">arXiv:1905.00414</a></li>
-<li id="ref7">Geirhos, R., Meding, K., &amp; Wichmann, F. A. (2020). Beyond accuracy: Quantifying trial-by-trial behaviour of CNNs and humans by measuring error consistency. <em>Advances in Neural Information Processing Systems (NeurIPS)</em>, 33. <a href="https://arxiv.org/abs/2006.16736">arXiv:2006.16736</a></li>
-<li id="ref8">Geirhos, R., Rubisch, P., Michaelis, C., Bethge, M., Wichmann, F. A., &amp; Brendel, W. (2019). ImageNet-trained CNNs are biased towards texture; increasing shape bias improves accuracy and robustness. <em>International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/1811.12231">arXiv:1811.12231</a></li>
-<li id="ref9">Naseer, M., Ranasinghe, K., Khan, S., Hayat, M., Khan, F. S., &amp; Yang, M.-H. (2021). Intriguing properties of vision transformers. <em>Advances in Neural Information Processing Systems (NeurIPS)</em>, 34. <a href="https://arxiv.org/abs/2105.10497">arXiv:2105.10497</a></li>
-<li id="ref10">Raghu, M., Unterthiner, T., Kornblith, S., Zhang, C., &amp; Dosovitskiy, A. (2021). Do vision transformers see like convolutional neural networks? <em>Advances in Neural Information Processing Systems (NeurIPS)</em>, 34. <a href="https://arxiv.org/abs/2108.08810">arXiv:2108.08810</a></li>
-<li id="ref11">Sundararajan, M., Taly, A., &amp; Yan, Q. (2017). Axiomatic attribution for deep networks (Integrated Gradients). <em>International Conference on Machine Learning (ICML)</em>, 3319–3328. <a href="https://arxiv.org/abs/1703.01365">arXiv:1703.01365</a></li>
-<li id="ref12">Loshchilov, I., &amp; Hutter, F. (2019). Decoupled weight decay regularization (AdamW). <em>International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/1711.05101">arXiv:1711.05101</a></li>
-<li id="ref13">Cubuk, E. D., Zoph, B., Shlens, J., &amp; Le, Q. V. (2020). RandAugment: Practical automated data augmentation with a reduced search space. <em>CVPR Workshops</em>, 702–703. <a href="https://arxiv.org/abs/1909.13719">arXiv:1909.13719</a></li>
-<li id="ref14">Good, P. I. (2005). <em>Permutation, Parametric, and Bootstrap Tests of Hypotheses</em> (3rd ed.). Springer. <a href="https://doi.org/10.1007/b138696">doi:10.1007/b138696</a></li>
-</ol></div>
+</section><section id="references" class="refs"><h2>References</h2><ol><li id="ref1">Golan, T., Raju, P. C., &amp; Kriegeskorte, N. (2020). Controversial stimuli: Pitting neural networks against each other as models of human cognition. <em>Proceedings of the National Academy of Sciences</em>, 117(47), 29330–29337. <a href="https://doi.org/10.1073/pnas.1912334117">doi:10.1073/pnas.1912334117</a> · <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7703564">free full text</a></li><li id="ref2">He, K., Zhang, X., Ren, S., &amp; Sun, J. (2016). Deep residual learning for image recognition. <em>IEEE Conference on Computer Vision and Pattern Recognition (CVPR)</em>, 770–778. <a href="https://arxiv.org/abs/1512.03385">arXiv:1512.03385</a></li><li id="ref3">Dosovitskiy, A., Beyer, L., Kolesnikov, A., et al. (2021). An image is worth 16×16 words: Transformers for image recognition at scale. <em>International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/2010.11929">arXiv:2010.11929</a></li><li id="ref4">Krizhevsky, A. (2009). <em>Learning multiple layers of features from tiny images</em> (Technical report). University of Toronto. <a href="https://www.cs.toronto.edu/~kriz/cifar.html">CIFAR-10 and CIFAR-100 datasets</a></li><li id="ref5">Cohen, J. (1960). A coefficient of agreement for nominal scales. <em>Educational and Psychological Measurement</em>, 20(1), 37–46. <a href="https://doi.org/10.1177/001316446002000104">doi:10.1177/001316446002000104</a></li><li id="ref6">Kornblith, S., Norouzi, M., Lee, H., &amp; Hinton, G. (2019). Similarity of neural network representations revisited. <em>International Conference on Machine Learning (ICML)</em>, 3519–3529. <a href="https://arxiv.org/abs/1905.00414">arXiv:1905.00414</a></li><li id="ref7">Geirhos, R., Meding, K., &amp; Wichmann, F. A. (2020). Beyond accuracy: Quantifying trial-by-trial behaviour of CNNs and humans by measuring error consistency. <em>Advances in Neural Information Processing Systems (NeurIPS)</em>, 33. <a href="https://arxiv.org/abs/2006.16736">arXiv:2006.16736</a></li><li id="ref8">Geirhos, R., Rubisch, P., Michaelis, C., Bethge, M., Wichmann, F. A., &amp; Brendel, W. (2019). ImageNet-trained CNNs are biased towards texture; increasing shape bias improves accuracy and robustness. <em>International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/1811.12231">arXiv:1811.12231</a></li><li id="ref9">Naseer, M., Ranasinghe, K., Khan, S., Hayat, M., Khan, F. S., &amp; Yang, M.-H. (2021). Intriguing properties of vision transformers. <em>Advances in Neural Information Processing Systems (NeurIPS)</em>, 34. <a href="https://arxiv.org/abs/2105.10497">arXiv:2105.10497</a></li><li id="ref10">Raghu, M., Unterthiner, T., Kornblith, S., Zhang, C., &amp; Dosovitskiy, A. (2021). Do vision transformers see like convolutional neural networks? <em>Advances in Neural Information Processing Systems (NeurIPS)</em>, 34. <a href="https://arxiv.org/abs/2108.08810">arXiv:2108.08810</a></li><li id="ref11">Sundararajan, M., Taly, A., &amp; Yan, Q. (2017). Axiomatic attribution for deep networks (Integrated Gradients). <em>International Conference on Machine Learning (ICML)</em>, 3319–3328. <a href="https://arxiv.org/abs/1703.01365">arXiv:1703.01365</a></li><li id="ref12">Loshchilov, I., &amp; Hutter, F. (2019). Decoupled weight decay regularization (AdamW). <em>International Conference on Learning Representations (ICLR)</em>. <a href="https://arxiv.org/abs/1711.05101">arXiv:1711.05101</a></li><li id="ref13">Cubuk, E. D., Zoph, B., Shlens, J., &amp; Le, Q. V. (2020). RandAugment: Practical automated data augmentation with a reduced search space. <em>CVPR Workshops</em>, 702–703. <a href="https://arxiv.org/abs/1909.13719">arXiv:1909.13719</a></li><li id="ref14">Good, P. I. (2005). <em>Permutation, Parametric, and Bootstrap Tests of Hypotheses</em> (3rd ed.). Springer. <a href="https://doi.org/10.1007/b138696">doi:10.1007/b138696</a></li></ol></section>
+<div class="author reveal"><img src="images/logo.png" alt="Brain Code Camp logo"><div><div class="ak">About the author</div><p><b>Jirakitt Chojaimeesuk</b><br>Student researcher at Brain Code Camp 2026, studying how different AI architectures see, and misjudge, the unfamiliar.</p></div></div>
+<div class="share"><button id="copy">Copy link</button><a href="#top-anchor" onclick="scrollTo({top:0,behavior:'smooth'});return false">Back to top</a></div>
 </article>
-<footer>Brain Code Camp 2026 · Jirakitt Chojaimeesuk</footer>
+</div>
+<footer>Brain Code Camp 2026 · Two Ways to Be Wrong · Jirakitt Chojaimeesuk</footer>
+
+<button id="top" aria-label="Back to top">↑</button>
+<div id="tip"></div>
+<div id="lb"><img alt=""><p></p></div>
 <script>
-document.querySelectorAll('.stats').forEach(function(s){var c=s.querySelectorAll('.stat:not(.arrow)');var i=c.length===3?1:c.length-1;c[i]&&c[i].classList.add('hl');});
-var bar=document.getElementById('progress');window.addEventListener('scroll',function(){var h=document.documentElement;bar.style.width=(100*h.scrollTop/(h.scrollHeight-h.clientHeight))+'%';});
+(function(){
+var bar=document.getElementById('progress'),top=document.getElementById('top'),toc=document.querySelector('nav.toc');
+var links=[].slice.call(document.querySelectorAll('nav.toc a')),secs=links.map(function(a){return document.querySelector(a.getAttribute('href'))});
+function onScroll(){var h=document.documentElement,y=h.scrollTop,max=h.scrollHeight-h.clientHeight;bar.style.width=(100*y/max)+'%';
+ var past=y>window.innerHeight*.8;top.classList.toggle('on',past);if(toc)toc.classList.toggle('on',past);
+ var cur=0;secs.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<200)cur=i});links.forEach(function(a,i){a.classList.toggle('active',i===cur)});}
+window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+top.onclick=function(){scrollTo({top:0,behavior:'smooth'})};
+// reveal
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -8% 0px'});
+document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
+// stat highlight + count-up
+document.querySelectorAll('.stats').forEach(function(s){var c=s.querySelectorAll('.stat:not(.arrow)');var i=c.length===3?1:c.length-1;c[i]&&c[i].classList.add('hl')});
+var cio=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;cio.unobserve(e.target);
+ var el=e.target,txt=el.dataset.count,nums=txt.match(/\d+(\.\d+)?/g);if(!nums)return;var t0=null;
+ function step(t){if(!t0)t0=t;var k=Math.min(1,(t-t0)/1100),ease=1-Math.pow(1-k,3),i=0;
+  el.textContent=txt.replace(/\d+(\.\d+)?/g,function(m){var d=(m.split('.')[1]||'').length;return (parseFloat(nums[i++])*ease).toFixed(d)});
+  if(k<1)requestAnimationFrame(step)}requestAnimationFrame(step)})},{threshold:.6});
+document.querySelectorAll('.stat .n[data-count]').forEach(function(n){cio.observe(n)});
+// citation tooltips
+var tip=document.getElementById('tip');
+document.querySelectorAll('a.cite').forEach(function(a){
+ a.addEventListener('mouseenter',function(){tip.textContent=a.dataset.ref;var r=a.getBoundingClientRect();tip.style.left=Math.min(window.innerWidth-360,Math.max(12,r.left-150))+'px';tip.style.top=(r.top>160?r.top-tip.offsetHeight-12:r.bottom+12)+'px';tip.classList.add('on')});
+ a.addEventListener('mouseleave',function(){tip.classList.remove('on')})});
+// lightbox
+var lb=document.getElementById('lb'),lbi=lb.querySelector('img'),lbp=lb.querySelector('p');
+document.querySelectorAll('img.zoom').forEach(function(im){im.addEventListener('click',function(){lbi.src=im.src;lbi.alt=im.alt;var c=im.parentNode.querySelector('figcaption');lbp.textContent=c?c.textContent.replace('Click to enlarge',''):'';lb.classList.add('on')})});
+lb.onclick=function(){lb.classList.remove('on')};document.addEventListener('keydown',function(e){if(e.key==='Escape')lb.classList.remove('on')});
+// copy link
+document.getElementById('copy').onclick=function(){var b=this;try{navigator.clipboard.writeText(location.href).then(function(){b.textContent='Copied ✓';setTimeout(function(){b.textContent='Copy link'},1800)})}catch(e){}};
+// reading time
 var w=document.querySelector('article').innerText.split(/\s+/).length;document.getElementById('rt').textContent=Math.max(1,Math.round(w/230));
+})();
 </script>
 </body></html>
