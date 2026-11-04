@@ -1,6 +1,6 @@
 <p align="center"><img src="images/banner.png" alt="Brain Code Camp 2026 research feature" width="100%"></p>
 
-# Two Ways to Be Wrong: How CNNs and Vision Transformers Fail Differently
+# On the Architectural Dependency of First-Encounter Out-of-Distribution Recognition Failures in Deep Neural Networks
 
 **By Jirakitt Chojaimeesuk** · Brain Code Camp 2026 · November 2026
 

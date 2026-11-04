@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Two Ways to Be Wrong</title>
-<meta name="description" content="How CNNs and Vision Transformers fail differently. A Brain Code Camp 2026 research feature by Jirakitt Chojaimeesuk.">
-<meta property="og:title" content="Two Ways to Be Wrong: How CNNs and Vision Transformers Fail Differently">
+<title>Architectural Dependency of OOD Recognition Failures</title>
+<meta name="description" content="Why CNNs and Vision Transformers fail differently on images they have never seen. A Brain Code Camp 2026 research feature by Jirakitt Chojaimeesuk.">
+<meta property="og:title" content="On the Architectural Dependency of First-Encounter Out-of-Distribution Recognition Failures in Deep Neural Networks">
 <meta property="og:description" content="Two families of AI vision models can be equally accurate and still get things wrong in completely different ways.">
 <meta property="og:image" content="images/banner.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,6 +27,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:"Source Serif 4"
 .kicker{font-family:Inter,sans-serif;font-size:13px;letter-spacing:.26em;font-weight:700;color:var(--warm);text-transform:uppercase}
 .cover .kicker{color:#ffb38a}
 .cover h1{font-family:Fraunces,Georgia,serif;font-weight:900;font-size:clamp(48px,9vw,120px);line-height:.95;letter-spacing:-.03em;margin:18px 0 20px}
+.cover h1.long{font-size:clamp(34px,5.2vw,68px);line-height:1.04;letter-spacing:-.02em;max-width:980px}
 .cover h1 em{display:block;font-weight:300;font-style:italic;font-size:.42em;letter-spacing:-.01em;line-height:1.15;margin-top:16px;color:#cfe0f6}
 .cover .dek{font-style:italic;font-size:clamp(19px,2.2vw,24px);line-height:1.5;color:#d9d5cc;max-width:680px;margin:0}
 .cover .byline{margin-top:28px;font-family:Inter,sans-serif;font-size:13px;letter-spacing:.08em;color:#b9b5ab}
@@ -127,7 +128,7 @@ footer{border-top:1px solid var(--rule);text-align:center;padding:40px 24px 60px
   <div class="bar"><span>Brain Code Camp 2026</span><span class="mid">Research Feature</span><img src="images/logo.png" alt="Brain Code Camp logo"></div>
   <div class="inner">
     <div class="kicker">Computer Vision · Model Behaviour</div>
-    <h1>Two Ways to Be&nbsp;Wrong<em>How CNNs and Vision Transformers Fail Differently</em></h1>
+    <h1 class="long">On the Architectural Dependency of First-Encounter Out-of-Distribution Recognition Failures in Deep&nbsp;Neural&nbsp;Networks</h1>
     <p class="dek">Two families of AI vision models can be equally accurate and still get things wrong in completely different ways. A student experiment traces those differences back to how each model is built, and to what it learned to rely on.</p>
     <div class="byline">By <b>Jirakitt Chojaimeesuk</b> · November 2026 · <span id="rt">12</span>-minute read</div>
   </div>
@@ -322,7 +323,7 @@ footer{border-top:1px solid var(--rule);text-align:center;padding:40px 24px 60px
 <div class="share"><button id="copy">Copy link</button><a href="#top-anchor" onclick="scrollTo({top:0,behavior:'smooth'});return false">Back to top</a></div>
 </article>
 </div>
-<footer>Brain Code Camp 2026 · Two Ways to Be Wrong · Jirakitt Chojaimeesuk</footer>
+<footer>Brain Code Camp 2026 · Jirakitt Chojaimeesuk</footer>
 
 <button id="top" aria-label="Back to top">↑</button>
 <div id="tip"></div>
